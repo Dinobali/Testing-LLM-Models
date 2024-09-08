@@ -104,10 +104,29 @@
         .question-input {
             display: none;
         }
+        .add-prompt-form {
+            margin-bottom: 20px;
+            background-color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .add-prompt-form input[type="text"] {
+            width: calc(100% - 120px);
+            margin-right: 10px;
+        }
+        .btn-add {
+            background-color: #4299e1;
+            color: white;
+            padding: 8px 16px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="add-prompt-form">
+            <input type="text" id="newPrompt" placeholder="Enter new prompt">
+            <button class="btn btn-add" onclick="addNewPrompt()">Add Prompt</button>
+        </div>
         <table id="questionTable">
             <thead>
                 <tr>
@@ -245,6 +264,24 @@
                 questionInput.style.display = 'block';
                 questionText.style.display = 'none';
                 questionInput.focus();
+            }
+        }
+
+        function addNewPrompt() {
+            const newPromptInput = document.getElementById('newPrompt');
+            const newPromptText = newPromptInput.value.trim();
+            
+            if (newPromptText) {
+                const newQuestion = {
+                    id: questions.length + 1,
+                    question: newPromptText,
+                    status: 'NONE'
+                };
+                
+                questions.push(newQuestion);
+                renderTable();
+                saveQuestions();
+                newPromptInput.value = '';
             }
         }
 
