@@ -55,10 +55,10 @@ To run this project on your local machine, follow these steps:
 
 4. Start the server:
    ```
-   node server.js
+   node app.js
    ```
 
-5. Open your web browser and navigate to `http://localhost:3000`
+5. Open your web browser and navigate to `http://localhost:3007`
 
 The application should now be running locally on your machine. Any changes you make will be saved to the `config.json` file in the project directory.
 
