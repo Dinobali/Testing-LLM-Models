@@ -1,0 +1,69 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is the capital city of the country whose name ends with 'lia'. I'm referring to the country name here.",
+      "status": "FAIL"
+    },
+    {
+      "id": 2,
+      "question": "What is the number that rhymes with the word we use to describe a tall plant?",
+      "status": "FAIL"
+    },
+    {
+      "id": 3,
+      "question": "John has 3 boxes of pencils. Each box contains 12 pencils. How many pencils does John have in total?",
+      "status": "NONE"
+    },
+    {
+      "id": 4,
+      "question": "Lucy has twice as many candies as Mike. If Mike has 7 candies, how many candies does Lucy have?",
+      "status": "NONE"
+    },
+    {
+      "id": 5,
+      "question": "Is 3307 a prime?",
+      "status": "NONE"
+    },
+    {
+      "id": 6,
+      "question": "I have 2 apples, then I buy 2 more. I bake a pie with 2 of the apples. After eating half of the pie how many apples do I have left?",
+      "status": "NONE"
+    },
+    {
+      "id": 7,
+      "question": "Sally is a girl. She has three brothers. Each of her brothers has the same two sisters. How many sisters does Sally have?",
+      "status": "NONE"
+    },
+    {
+      "id": 8,
+      "question": "If a regular hexagon has a short diagonal of 64, what is its long diagonal?",
+      "status": "PASS"
+    },
+    {
+      "id": 9,
+      "question": "Create an HTML page with a button that explodes confetti when you click it. You can use CSS & JS as well.",
+      "status": "NONE"
+    },
+    {
+      "id": 10,
+      "question": "Create a python program that prints the next X leap years based on user input.",
+      "status": "NONE"
+    },
+    {
+      "id": 11,
+      "question": "Generate the SVG code for a butterfly.",
+      "status": "NONE"
+    },
+    {
+      "id": 12,
+      "question": "Create a landing page for an AI company. The landing page should have 4 sections: Header, Banner, Features and Contact Us. Make sure that the landing page looks sleek and modern. You can use HTML, CSS, JS.",
+      "status": "NONE"
+    },
+    {
+      "id": 13,
+      "question": "Write a game of life in python that works on the terminal.",
+      "status": "NONE"
+    }
+  ]
+}
