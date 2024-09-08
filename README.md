@@ -65,7 +65,7 @@ The application should now be running locally on your machine. Any changes you m
 ## Project Structure
 
 - `index.html`: The main HTML file containing the structure and scripts for the web application.
-- `server.js`: A simple Express.js server that serves the static files and handles saving the configuration.
+- `app.js`: A simple Express.js server that serves the static files and handles saving the configuration.
 - `config.json`: The configuration file that stores the questions and their statuses.
 
 ## Customization
