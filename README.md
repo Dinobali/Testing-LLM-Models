@@ -58,7 +58,13 @@ To run this project on your local machine, follow these steps:
    node app.js
    ```
 
-5. Open your web browser and navigate to `http://localhost:3007`
+   Start using pm2
+
+    ```
+   pm2 start app.js --name testing-llm-models
+   ```
+
+6. Open your web browser and navigate to `http://localhost:3007`
 
 The application should now be running locally on your machine. Any changes you make will be saved to the `config.json` file in the project directory.
 
