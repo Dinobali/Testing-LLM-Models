@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reflection 70B Questions</title>
+    <title>Testing LLMs</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -48,7 +49,7 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        select, input[type="text"] {
+        select, input[type="text"], textarea {
             width: 100%;
             padding: 8px;
             border-radius: 4px;
@@ -56,7 +57,7 @@
             background-color: #f8fafc;
             transition: all 0.3s ease;
         }
-        select:focus, input[type="text"]:focus {
+        select:focus, input[type="text"]:focus, textarea:focus {
             outline: none;
             border-color: #4299e1;
             box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
@@ -78,12 +79,16 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: 0 5px;
         }
-        .btn-copy {
+        .btn-copy, .btn-toggle-answer {
             background-color: #4299e1;
             color: white;
         }
-        .btn-edit {
+        .btn-edit, .btn-save-answer, .btn-add-answer {
             background-color: #48bb78;
             color: white;
         }
@@ -95,13 +100,13 @@
             opacity: 0.9;
             transform: translateY(-1px);
         }
-        .edit-mode .question-text {
+        .edit-mode .question-text, .edit-mode .answer-text {
             display: none;
         }
-        .edit-mode .question-input {
+        .edit-mode .question-input, .edit-mode .answer-input {
             display: block;
         }
-        .question-input {
+        .question-input, .answer-input {
             display: none;
         }
         .add-prompt-form {
@@ -109,10 +114,12 @@
             background-color: #e2e8f0;
             padding: 20px;
             border-radius: 8px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
         .add-prompt-form input[type="text"] {
-            width: calc(100% - 120px);
-            margin-right: 10px;
+            flex-grow: 1;
         }
         .btn-add {
             background-color: #4299e1;
@@ -123,16 +130,46 @@
             background-color: #ed8936;
             color: white;
             padding: 8px 16px;
-            margin-left: 10px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+        }
+        .answer-container {
+            display: none;
+            margin-top: 10px;
+        }
+        .answer-text {
+            background-color: #f0f4f8;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .answer-buttons {
+            display: none;
+            margin-top: 10px;
+            flex-wrap: wrap;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="header">
+            <h1>Testing LLMs</h1>
+            <button class="btn btn-reset" onclick="resetAllStatuses()">
+                <i data-lucide="refresh-cw"></i> Reset All
+            </button>
+        </div>
         <div class="add-prompt-form">
             <input type="text" id="newPrompt" placeholder="Enter new prompt">
-            <button class="btn btn-add" onclick="addNewPrompt()">Add Prompt</button>
-            <button class="btn btn-reset" onclick="resetAllStatuses()">Reset All</button>
+            <button class="btn btn-add" onclick="addNewPrompt()">
+                <i data-lucide="plus"></i> Add Prompt
+            </button>
         </div>
         <table id="questionTable">
             <thead>
@@ -191,6 +228,24 @@
                     <td>
                         <span class="question-text">${question.question}</span>
                         <input type="text" class="question-input" value="${question.question}" style="display: none;">
+                        <div class="answer-container">
+                            <div class="answer-text">${question.answer || 'No answer provided'}</div>
+                            <textarea class="answer-input" style="display: none;">${question.answer || ''}</textarea>
+                            <div class="answer-buttons">
+                                <button class="btn btn-add-answer" onclick="addAnswer(${index})">
+                                    <i data-lucide="plus"></i> Add Answer
+                                </button>
+                                <button class="btn btn-copy" onclick="copyAnswer(${index})">
+                                    <i data-lucide="copy"></i> Copy
+                                </button>
+                                <button class="btn btn-edit" onclick="editAnswer(${index})">
+                                    <i data-lucide="edit"></i> Edit
+                                </button>
+                                <button class="btn btn-remove" onclick="removeAnswer(${index})">
+                                    <i data-lucide="trash-2"></i> Remove
+                                </button>
+                            </div>
+                        </div>
                     </td>
                     <td>
                         <select onchange="updateStatus(${index}, this.value)">
@@ -200,14 +255,24 @@
                         </select>
                     </td>
                     <td class="button-group">
-                        <button class="btn btn-copy" onclick="copyQuestion(${index})">Copy</button>
-                        <button class="btn btn-edit" onclick="toggleEdit(this)">Edit</button>
-                        <button class="btn btn-remove" onclick="removeQuestion(${index})">Remove</button>
+                        <button class="btn btn-copy" onclick="copyQuestion(${index})">
+                            <i data-lucide="copy"></i> Copy
+                        </button>
+                        <button class="btn btn-edit" onclick="editQuestion(${index})">
+                            <i data-lucide="edit"></i> Edit
+                        </button>
+                        <button class="btn btn-remove" onclick="removeQuestion(${index})">
+                            <i data-lucide="trash-2"></i> Remove
+                        </button>
+                        <button class="btn btn-toggle-answer" onclick="toggleAnswer(${index})">
+                            <i data-lucide="eye"></i> Toggle Answer
+                        </button>
                     </td>
                 `;
                 tbody.appendChild(row);
                 updateRowClass(row, question.status);
             });
+            lucide.createIcons();
         }
 
         function updateStatus(index, status) {
@@ -249,32 +314,151 @@
             }
         }
 
-        function removeQuestion(index) {
-            questions.splice(index, 1);
-            renderTable();
-            saveQuestions();
+        function showCopiedFeedback(buttonSelector) {
+            const button = document.querySelector(buttonSelector);
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i data-lucide="check"></i> Copied!';
+            lucide.createIcons();
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                lucide.createIcons();
+            }, 2000);
         }
 
-        function toggleEdit(button) {
-            const row = button.closest('tr');
+        function removeQuestion(index) {
+    if (confirm("Are you sure you want to remove this question? This action cannot be undone.")) {
+        // Remove the question from the questions array
+        questions.splice(index, 1);
+        
+        // Save the updated questions array to the configuration
+        saveQuestions();
+        
+        // Re-render the table to reflect the removal
+        renderTable();
+    }
+}
+
+
+        function editQuestion(index) {
+            const row = document.querySelector(`#questionTable tbody tr:nth-child(${index + 1})`);
             const questionText = row.querySelector('.question-text');
             const questionInput = row.querySelector('.question-input');
+            const editButton = row.querySelector('.button-group .btn-edit');
             
             if (row.classList.contains('edit-mode')) {
                 // Save the edited question
-                const index = Array.from(row.parentNode.children).indexOf(row);
                 questions[index].question = questionInput.value;
                 questionText.textContent = questionInput.value;
-                button.textContent = 'Edit';
+                editButton.innerHTML = '<i data-lucide="edit"></i> Edit';
                 row.classList.remove('edit-mode');
                 saveQuestions();
             } else {
                 // Enter edit mode
-                button.textContent = 'Save';
+                editButton.innerHTML = '<i data-lucide="save"></i> Save';
                 row.classList.add('edit-mode');
                 questionInput.style.display = 'block';
                 questionText.style.display = 'none';
                 questionInput.focus();
+            }
+            lucide.createIcons();
+        }
+
+        function toggleAnswer(index) {
+            const row = document.querySelector(`#questionTable tbody tr:nth-child(${index + 1})`);
+            const answerContainer = row.querySelector('.answer-container');
+            const answerButtons = row.querySelector('.answer-buttons');
+            if (answerContainer.style.display === 'none' || answerContainer.style.display === '') {
+                answerContainer.style.display = 'block';
+                answerButtons.style.display = 'flex';
+            } else {
+                answerContainer.style.display = 'none';
+                answerButtons.style.display = 'none';
+            }
+        }
+
+        function addAnswer(index) {
+            const row = document.querySelector(`#questionTable tbody tr:nth-child(${index + 1})`);
+            const answerText = row.querySelector('.answer-text');
+            const answerInput = row.querySelector('.answer-input');
+            const addButton = row.querySelector('.answer-buttons .btn-add-answer');
+            
+            if (row.classList.contains('edit-mode')) {
+                // Save the new answer
+                questions[index].answer = answerInput.value;
+                answerText.textContent = answerInput.value || 'No answer provided';
+                addButton.innerHTML = '<i data-lucide="plus"></i> Add Answer';
+                row.classList.remove('edit-mode');
+                answerInput.style.display = 'none';
+                answerText.style.display = 'block';
+                saveQuestions();
+            } else {
+                // Enter edit mode
+                addButton.innerHTML = '<i data-lucide="save"></i> Save Answer';
+                row.classList.add('edit-mode');
+                answerInput.style.display = 'block';
+                answerText.style.display = 'none';
+                answerInput.focus();
+            }
+            lucide.createIcons();
+        }
+        
+        function copyAnswer(index) {
+    const answerText = questions[index].answer; // Ensure each question has an 'answer' property
+    const tempTextArea = document.createElement('textarea');
+    tempTextArea.value = answerText;
+    document.body.appendChild(tempTextArea);
+    tempTextArea.select();
+    
+    try {
+        document.execCommand('copy');
+        // Provide visual feedback
+        const copyButton = document.querySelector(`#answerTable tbody tr:nth-child(${index + 1}) .btn-copy-answer`);
+        const originalText = copyButton.textContent;
+        copyButton.textContent = 'Copied!';
+        setTimeout(() => {
+            copyButton.textContent = originalText;
+        }, 2000);
+    } catch (err) {
+        console.error('Failed to copy text: ', err);
+    } finally {
+        document.body.removeChild(tempTextArea);
+    }
+}
+
+
+        function editAnswer(index) {
+            const row = document.querySelector(`#questionTable tbody tr:nth-child(${index + 1})`);
+            const answerText = row.querySelector('.answer-text');
+            const answerInput = row.querySelector('.answer-input');
+            const editButton = row.querySelector('.answer-buttons .btn-edit');
+            
+            if (row.classList.contains('edit-mode')) {
+                // Save the edited answer
+                questions[index].answer = answerInput.value;
+                answerText.textContent = answerInput.value || 'No answer provided';
+                editButton.innerHTML = '<i data-lucide="edit"></i> Edit Answer';
+                row.classList.remove('edit-mode');
+                answerInput.style.display = 'none';
+                answerText.style.display = 'block';
+                saveQuestions();
+            } else {
+                // Enter edit mode
+                editButton.innerHTML = '<i data-lucide="save"></i> Save Answer';
+                row.classList.add('edit-mode');
+                answerInput.style.display = 'block';
+                answerText.style.display = 'none';
+                answerInput.focus();
+            }
+            lucide.createIcons();
+        }
+
+        function removeAnswer(index) {
+            if (confirm("Are you sure you want to remove this answer?")) {
+                questions[index].answer = '';
+                const row = document.querySelector(`#questionTable tbody tr:nth-child(${index + 1})`);
+                const answerText = row.querySelector('.answer-text');
+                answerText.textContent = 'No answer provided';
+                saveQuestions();
             }
         }
 
@@ -286,13 +470,14 @@
                 const newQuestion = {
                     id: questions.length + 1,
                     question: newPromptText,
+                    answer: '',
                     status: 'NONE'
                 };
                 
                 questions.push(newQuestion);
                 renderTable();
                 saveQuestions();
-                newPromptInput.value = '';
+                newPromptInput.value = ''; // Clear the input field after adding
             }
         }
 
@@ -305,6 +490,13 @@
                 renderTable();
             }
         }
+
+        // Add event listener for Enter key on newPrompt input
+        document.getElementById('newPrompt').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                addNewPrompt();
+            }
+        });
 
         // Initial fetch and render
         fetchQuestions();
