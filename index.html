@@ -155,6 +155,16 @@
             margin-top: 10px;
             flex-wrap: wrap;
         }
+        .reorder-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .btn-reorder {
+            background-color: #718096;
+            color: white;
+            padding: 4px 8px;
+        }
     </style>
 </head>
 <body>
@@ -174,6 +184,7 @@
         <table id="questionTable">
             <thead>
                 <tr>
+                    <th>Order</th>
                     <th>#</th>
                     <th>PROMPT</th>
                     <th>PASS/FAIL</th>
@@ -219,61 +230,85 @@
         }
 
         function renderTable() {
-            const tbody = document.querySelector('#questionTable tbody');
-            tbody.innerHTML = '';
-            questions.forEach((question, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>
-                        <span class="question-text">${question.question}</span>
-                        <input type="text" class="question-input" value="${question.question}" style="display: none;">
-                        <div class="answer-container">
-                            <div class="answer-text">${question.answer || 'No answer provided'}</div>
-                            <textarea class="answer-input" style="display: none;">${question.answer || ''}</textarea>
-                            <div class="answer-buttons">
-                                <button class="btn btn-add-answer" onclick="addAnswer(${index})">
-                                    <i data-lucide="plus"></i> Add Answer
-                                </button>
-                                <button class="btn btn-copy" onclick="copyAnswer(${index})">
-                                    <i data-lucide="copy"></i> Copy
-                                </button>
-                                <button class="btn btn-edit" onclick="editAnswer(${index})">
-                                    <i data-lucide="edit"></i> Edit
-                                </button>
-                                <button class="btn btn-remove" onclick="removeAnswer(${index})">
-                                    <i data-lucide="trash-2"></i> Remove
-                                </button>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <select onchange="updateStatus(${index}, this.value)">
-                            <option value="NONE" ${question.status === 'NONE' ? 'selected' : ''}>NONE</option>
-                            <option value="PASS" ${question.status === 'PASS' ? 'selected' : ''}>PASS</option>
-                            <option value="FAIL" ${question.status === 'FAIL' ? 'selected' : ''}>FAIL</option>
-                        </select>
-                    </td>
-                    <td class="button-group">
-                        <button class="btn btn-copy" onclick="copyQuestion(${index})">
+    const tbody = document.querySelector('#questionTable tbody');
+    tbody.innerHTML = '';
+    questions.forEach((question, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <div class="reorder-buttons">
+                    <button class="btn btn-reorder" onclick="moveQuestion(${index}, -1)" ${index === 0 ? 'disabled' : ''}>
+                        <i data-lucide="chevron-up"></i>
+                    </button>
+                    <button class="btn btn-reorder" onclick="moveQuestion(${index}, 1)" ${index === questions.length - 1 ? 'disabled' : ''}>
+                        <i data-lucide="chevron-down"></i>
+                    </button>
+                </div>
+            </td>
+            <td>${question.id}</td>
+            <td>
+                <span class="question-text">${question.question}</span>
+                <input type="text" class="question-input" value="${question.question}" style="display: none;">
+                <div class="answer-container">
+                    <div class="answer-text">${question.answer || 'No answer provided'}</div>
+                    <textarea class="answer-input" style="display: none;">${question.answer || ''}</textarea>
+                    <div class="answer-buttons">
+                        <button class="btn btn-add-answer" onclick="addAnswer(${index})">
+                            <i data-lucide="plus"></i> Add Answer
+                        </button>
+                        <button class="btn btn-copy" onclick="copyAnswer(${index})">
                             <i data-lucide="copy"></i> Copy
                         </button>
-                        <button class="btn btn-edit" onclick="editQuestion(${index})">
+                        <button class="btn btn-edit" onclick="editAnswer(${index})">
                             <i data-lucide="edit"></i> Edit
                         </button>
-                        <button class="btn btn-remove" onclick="removeQuestion(${index})">
+                        <button class="btn btn-remove" onclick="removeAnswer(${index})">
                             <i data-lucide="trash-2"></i> Remove
                         </button>
-                        <button class="btn btn-toggle-answer" onclick="toggleAnswer(${index})">
-                            <i data-lucide="eye"></i> Toggle Answer
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-                updateRowClass(row, question.status);
-            });
-            lucide.createIcons();
-        }
+                    </div>
+                </div>
+            </td>
+            <td>
+                <select onchange="updateStatus(${index}, this.value)">
+                    <option value="NONE" ${question.status === 'NONE' ? 'selected' : ''}>NONE</option>
+                    <option value="PASS" ${question.status === 'PASS' ? 'selected' : ''}>PASS</option>
+                    <option value="FAIL" ${question.status === 'FAIL' ? 'selected' : ''}>FAIL</option>
+                </select>
+            </td>
+            <td class="button-group">
+                <button class="btn btn-copy" onclick="copyQuestion(${index})">
+                    <i data-lucide="copy"></i> Copy
+                </button>
+                <button class="btn btn-edit" onclick="editQuestion(${index})">
+                    <i data-lucide="edit"></i> Edit
+                </button>
+                <button class="btn btn-remove" onclick="removeQuestion(${index})">
+                    <i data-lucide="trash-2"></i> Remove
+                </button>
+                <button class="btn btn-toggle-answer" onclick="toggleAnswer(${index})">
+                    <i data-lucide="eye"></i> Toggle Answer
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+        updateRowClass(row, question.status);
+    });
+    lucide.createIcons();
+}
+
+function moveQuestion(index, direction) {
+    if ((direction === -1 && index > 0) || (direction === 1 && index < questions.length - 1)) {
+        const newIndex = index + direction;
+        [questions[index], questions[newIndex]] = [questions[newIndex], questions[index]];
+        // Update IDs to match new positions
+        questions.forEach((question, idx) => {
+            question.id = idx + 1;
+        });
+        saveQuestions();
+        renderTable();
+    }
+}
+
 
         function updateStatus(index, status) {
             questions[index].status = status;
@@ -326,18 +361,12 @@
         }
 
         function removeQuestion(index) {
-    if (confirm("Are you sure you want to remove this question? This action cannot be undone.")) {
-        // Remove the question from the questions array
-        questions.splice(index, 1);
-        
-        // Save the updated questions array to the configuration
-        saveQuestions();
-        
-        // Re-render the table to reflect the removal
-        renderTable();
-    }
-}
-
+            if (confirm("Are you sure you want to remove this question? This action cannot be undone.")) {
+                questions.splice(index, 1);
+                saveQuestions();
+                renderTable();
+            }
+        }
 
         function editQuestion(index) {
             const row = document.querySelector(`#questionTable tbody tr:nth-child(${index + 1})`);
@@ -346,14 +375,12 @@
             const editButton = row.querySelector('.button-group .btn-edit');
             
             if (row.classList.contains('edit-mode')) {
-                // Save the edited question
                 questions[index].question = questionInput.value;
                 questionText.textContent = questionInput.value;
                 editButton.innerHTML = '<i data-lucide="edit"></i> Edit';
                 row.classList.remove('edit-mode');
                 saveQuestions();
             } else {
-                // Enter edit mode
                 editButton.innerHTML = '<i data-lucide="save"></i> Save';
                 row.classList.add('edit-mode');
                 questionInput.style.display = 'block';
@@ -383,7 +410,6 @@
             const addButton = row.querySelector('.answer-buttons .btn-add-answer');
             
             if (row.classList.contains('edit-mode')) {
-                // Save the new answer
                 questions[index].answer = answerInput.value;
                 answerText.textContent = answerInput.value || 'No answer provided';
                 addButton.innerHTML = '<i data-lucide="plus"></i> Add Answer';
@@ -392,7 +418,6 @@
                 answerText.style.display = 'block';
                 saveQuestions();
             } else {
-                // Enter edit mode
                 addButton.innerHTML = '<i data-lucide="save"></i> Save Answer';
                 row.classList.add('edit-mode');
                 answerInput.style.display = 'block';
@@ -403,28 +428,26 @@
         }
         
         function copyAnswer(index) {
-    const answerText = questions[index].answer; // Ensure each question has an 'answer' property
-    const tempTextArea = document.createElement('textarea');
-    tempTextArea.value = answerText;
-    document.body.appendChild(tempTextArea);
-    tempTextArea.select();
-    
-    try {
-        document.execCommand('copy');
-        // Provide visual feedback
-        const copyButton = document.querySelector(`#answerTable tbody tr:nth-child(${index + 1}) .btn-copy-answer`);
-        const originalText = copyButton.textContent;
-        copyButton.textContent = 'Copied!';
-        setTimeout(() => {
-            copyButton.textContent = originalText;
-        }, 2000);
-    } catch (err) {
-        console.error('Failed to copy text: ', err);
-    } finally {
-        document.body.removeChild(tempTextArea);
-    }
-}
-
+            const answerText = questions[index].answer;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = answerText;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            try {
+                document.execCommand('copy');
+                // Provide visual feedback
+                const copyButton = document.querySelector(`#questionTable tbody tr:nth-child(${index + 1}) .answer-buttons .btn-copy`);
+                const originalText = copyButton.textContent;
+                copyButton.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyButton.textContent = originalText;
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+            } finally {
+                document.body.removeChild(tempTextArea);
+            }
+        }
 
         function editAnswer(index) {
             const row = document.querySelector(`#questionTable tbody tr:nth-child(${index + 1})`);
@@ -433,7 +456,6 @@
             const editButton = row.querySelector('.answer-buttons .btn-edit');
             
             if (row.classList.contains('edit-mode')) {
-                // Save the edited answer
                 questions[index].answer = answerInput.value;
                 answerText.textContent = answerInput.value || 'No answer provided';
                 editButton.innerHTML = '<i data-lucide="edit"></i> Edit Answer';
@@ -442,7 +464,6 @@
                 answerText.style.display = 'block';
                 saveQuestions();
             } else {
-                // Enter edit mode
                 editButton.innerHTML = '<i data-lucide="save"></i> Save Answer';
                 row.classList.add('edit-mode');
                 answerInput.style.display = 'block';
@@ -462,21 +483,21 @@
             }
         }
 
-        function addNewPrompt() {
+        async function addNewPrompt() {
             const newPromptInput = document.getElementById('newPrompt');
             const newPromptText = newPromptInput.value.trim();
             
             if (newPromptText) {
                 const newQuestion = {
-                    id: questions.length + 1,
+                    id: questions.length > 0 ? Math.max(...questions.map(q => q.id)) + 1 : 1,
                     question: newPromptText,
                     answer: '',
                     status: 'NONE'
                 };
                 
                 questions.push(newQuestion);
+                await saveQuestions();  // Wait for the save operation to complete
                 renderTable();
-                saveQuestions();
                 newPromptInput.value = ''; // Clear the input field after adding
             }
         }
