@@ -336,11 +336,13 @@ function moveQuestion(index, direction) {
             try {
                 document.execCommand('copy');
                 // Provide visual feedback
-                const copyButton = document.querySelector(`#questionTable tbody tr:nth-child(${index + 1}) .btn-copy`);
-                const originalText = copyButton.textContent;
-                copyButton.textContent = 'Copied!';
+                const copyButton = document.querySelector(`#questionTable tbody tr:nth-child(${index + 1}) .button-group .btn-copy`);
+                const originalText = copyButton.innerHTML;
+                copyButton.innerHTML = '<i data-lucide="check"></i> Copied!';
+                lucide.createIcons();
                 setTimeout(() => {
-                    copyButton.textContent = originalText;
+                    copyButton.innerHTML = originalText;
+                    lucide.createIcons();
                 }, 2000);
             } catch (err) {
                 console.error('Failed to copy text: ', err);
@@ -437,10 +439,12 @@ function moveQuestion(index, direction) {
                 document.execCommand('copy');
                 // Provide visual feedback
                 const copyButton = document.querySelector(`#questionTable tbody tr:nth-child(${index + 1}) .answer-buttons .btn-copy`);
-                const originalText = copyButton.textContent;
-                copyButton.textContent = 'Copied!';
+                const originalText = copyButton.innerHTML;
+                copyButton.innerHTML = '<i data-lucide="check"></i> Copied!';
+                lucide.createIcons();
                 setTimeout(() => {
-                    copyButton.textContent = originalText;
+                    copyButton.innerHTML = originalText;
+                    lucide.createIcons();
                 }, 2000);
             } catch (err) {
                 console.error('Failed to copy text: ', err);
